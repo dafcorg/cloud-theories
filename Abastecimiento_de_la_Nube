@@ -1,0 +1,39 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Simulamos la demanda de recursos en la nube como una distribución normal
+demand = np.random.normal(loc=100, scale=20, size=1000)
+
+# Latencia de aprovisionamiento de 5 segundos
+latency = 5
+
+# Función para simular el abastecimiento sin faltantes considerando la latencia
+def provision_without_shortages(demand, latency):
+    resources = np.zeros_like(demand)
+    for t in range(len(demand)):
+        if t < latency:
+            resources[t] = max(demand[:t+1])  # Asegurar suficientes recursos iniciales
+        else:
+            future_demand = max(demand[t-latency:t+1])  # Prever demanda futura
+            resources[t] = max(future_demand, resources[t-1])  # Asegurar recursos suficientes
+    return resources
+
+resources = provision_without_shortages(demand, latency)
+
+# Calcular tiempo de no servicio (cuando demanda > recursos aprovisionados)
+out_of_service = np.sum(demand > resources)
+avg_out_of_service = out_of_service / len(demand) * 100
+
+print(f"Tiempo de no servicio: {out_of_service} instantes")
+print(f"Porcentaje de tiempo sin servicio adecuado: {avg_out_of_service:.2f}%")
+
+# Gráfica de demanda vs recursos aprovisionados
+plt.figure(figsize=(10, 6))
+plt.plot(demand, label='Demanda de recursos')
+plt.plot(resources, label='Abastecimiento del Cloud sin faltantes (latencia 5s)', linestyle='--')
+plt.xlabel('Tiempo')
+plt.ylabel('Cantidad de recursos')
+plt.title('Abastecimiento de Cloud sin faltantes considerando latencia')
+plt.legend()
+plt.grid(True)
+plt.show()
