@@ -10,5 +10,5 @@
    ```
 3. Ejecutar el código:
    ```bash
-   python inventory_scaling.py
+   python Abastecimiento_de_la_Nube.py
    ```
